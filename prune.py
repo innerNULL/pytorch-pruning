@@ -11,6 +11,15 @@ def replace_layers(model, i, indexes, layers):
 	return model[i]
 
 def prune_vgg16_conv_layer(model, layer_index, filter_index):
+	"""
+	pruning vgg16 model.
+	
+	Parameters:
+	    model: torch.nn.Net; model.
+	    layer_index: int; layer index.
+	    filter_index: int; filter's index.
+	"""
+	""" extracting the current and next conv layer """
 	_, conv = model.features._modules.items()[layer_index]
 	next_conv = None
 	offset = 1

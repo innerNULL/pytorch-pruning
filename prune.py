@@ -19,11 +19,12 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	    layer_index: int; layer index.
 	    filter_index: int; filter's index.
 	"""
-	""" extracting the current and next conv layer """
+	""" extracting the current conv layer """
 	_, conv = model.features._modules.items()[layer_index]
 	next_conv = None
 	offset = 1
 
+	""" locate next conv layer[not very flexible!]. """
 	while layer_index + offset <  len(model.features._modules.items()):
 		res =  model.features._modules.items()[layer_index+offset]
 		if isinstance(res[1], torch.nn.modules.conv.Conv2d):

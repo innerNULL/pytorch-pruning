@@ -46,6 +46,8 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 			groups = conv.groups,
 			bias = conv.bias)
 
+	""" cache old weight and initialize new weight. """
+	""" drawbacks: converting values to numpy.ndarray so can not use gpu """
 	old_weights = conv.weight.data.cpu().numpy()
 	new_weights = new_conv.weight.data.cpu().numpy()
 

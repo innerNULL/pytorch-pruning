@@ -24,7 +24,10 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	next_conv = None
 	offset = 1
 
-	""" locate next conv layer[not very flexible!]. """
+	""" 
+	locate next conv layer with iteration. 
+	searching the most close conv layer.
+	"""
 	while layer_index + offset <  len(model.features._modules.items()):
 		res =  model.features._modules.items()[layer_index+offset]
 		if isinstance(res[1], torch.nn.modules.conv.Conv2d):
@@ -32,6 +35,7 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 			break
 		offset = offset + 1
 	
+	""" ?: why minus one. """
 	new_conv = \
 		torch.nn.Conv2d(in_channels = conv.in_channels, \
 			out_channels = conv.out_channels - 1,

@@ -61,31 +61,36 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	""" 
 	?: why 5-dim tensor. 
 	The reason is, suppose the conv kernel's dimension is
-	n * c * k_h * k_w, c is the conv kernel's channel
-	first reshape(expand) the conv kernel by its 
-	
+	n * c * k_h * k_w, c is the current conv layer's channel number, 
+	n is next conv layer's channel number.
+	The first operation is reshape(expand) the conv kernel on c to 
+	certain variable such as list.(so the code here maybe something wrong)
 	"""
 	new_weights[: filter_index, :, :, :] = old_weights[: filter_index, :, :, :]
 	new_weights[filter_index : , :, :, :] = old_weights[filter_index + 1 :, :, :, :]
 	new_conv.weight.data = torch.from_numpy(new_weights).cuda()
 
+	""" bias. """
 	bias_numpy = conv.bias.data.cpu().numpy()
 
+	""" re-initialize bias. """ 
 	bias = np.zeros(shape = (bias_numpy.shape[0] - 1), dtype = np.float32)
+	""" corresponding pruning operation for bias. """
 	bias[:filter_index] = bias_numpy[:filter_index]
-	bias[filter_index : ] = bias_numpy[filter_index + 1 :]
+	bias[filter_index:] = bias_numpy[filter_index + 1:]
 	new_conv.bias.data = torch.from_numpy(bias).cuda()
 
 	if not next_conv is None:
-		next_new_conv = \
-			torch.nn.Conv2d(in_channels = next_conv.in_channels - 1,\
-				out_channels =  next_conv.out_channels, \
-				kernel_size = next_conv.kernel_size, \
-				stride = next_conv.stride,
-				padding = next_conv.padding,
-				dilation = next_conv.dilation,
-				groups = next_conv.groups,
-				bias = next_conv.bias)
+	    next_new_conv = torch.nn.Conv2d(
+	        in_channels = next_conv.in_channels - 1,
+		out_channels =  next_conv.out_channels, 
+		kernel_size = next_conv.kernel_size, 
+		stride = next_conv.stride,
+		padding = next_conv.padding,
+		dilation = next_conv.dilation,
+		groups = next_conv.groups,
+		bias = next_conv.bias
+	    )
 
 		old_weights = next_conv.weight.data.cpu().numpy()
 		new_weights = next_new_conv.weight.data.cpu().numpy()

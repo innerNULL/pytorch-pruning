@@ -17,7 +17,7 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	Parameters:
 	    model: torch.nn.Net; model.
 	    layer_index: int; layer index.
-	    filter_index: int; filter's index.
+	    filter_index: int; channel's index.
 	"""
 	""" extracting the current conv layer """
 	_, conv = model.features._modules.items()[layer_index]
@@ -29,13 +29,15 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	searching the most close conv layer.
 	"""
 	while layer_index + offset <  len(model.features._modules.items()):
-		res =  model.features._modules.items()[layer_index+offset]
+		""" res means current loacated layer. """
+		res =  model.features._modules.items()[layer_index + offset]
 		if isinstance(res[1], torch.nn.modules.conv.Conv2d):
 			next_name, next_conv = res
 			break
 		offset = offset + 1
 	
-	""" ?: why minus one. """
+	""" ?: why minus one. because this operation will cut one
+	    channel, so the channels' number minus one. """
 	new_conv = \
 		torch.nn.Conv2d(in_channels = conv.in_channels, \
 			out_channels = conv.out_channels - 1,

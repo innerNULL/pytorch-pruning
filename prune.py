@@ -58,7 +58,13 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	old_weights = conv.weight.data.cpu().numpy()
 	new_weights = new_conv.weight.data.cpu().numpy()
 
-	""" ?: why 5-dim tensor. """
+	""" 
+	?: why 5-dim tensor. 
+	The reason is, suppose the conv kernel's dimension is
+	n * c * k_h * k_w, c is the conv kernel's channel
+	first reshape(expand) the conv kernel by its 
+	
+	"""
 	new_weights[: filter_index, :, :, :] = old_weights[: filter_index, :, :, :]
 	new_weights[filter_index : , :, :, :] = old_weights[filter_index + 1 :, :, :, :]
 	new_conv.weight.data = torch.from_numpy(new_weights).cuda()

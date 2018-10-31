@@ -36,23 +36,29 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 			break
 		offset = offset + 1
 	
-	""" ?: why minus one. because this operation will cut one
-	    channel, so the channels' number minus one. """
+	""" 
+	?: why minus one. 
+	because this operation will cut one
+	channel in later, so the channels' number minus one. 
+	"""
 	new_conv = \
-		torch.nn.Conv2d(in_channels = conv.in_channels, \
-			out_channels = conv.out_channels - 1,
-			kernel_size = conv.kernel_size, \
-			stride = conv.stride,
-			padding = conv.padding,
-			dilation = conv.dilation,
-			groups = conv.groups,
-			bias = conv.bias)
+	    torch.nn.Conv2d(
+		in_channels = conv.in_channels, 
+		out_channels = conv.out_channels - 1, 
+		kernel_size = conv.kernel_size, 
+		stride = conv.stride,
+		padding = conv.padding,
+		dilation = conv.dilation,
+		groups = conv.groups,
+		bias = conv.bias
+            )
 
 	""" cache old weight and initialize new weight. """
 	""" drawbacks: converting values to numpy.ndarray so can not use gpu """
 	old_weights = conv.weight.data.cpu().numpy()
 	new_weights = new_conv.weight.data.cpu().numpy()
 
+	""" ?: why 5-dim tensor. """
 	new_weights[: filter_index, :, :, :] = old_weights[: filter_index, :, :, :]
 	new_weights[filter_index : , :, :, :] = old_weights[filter_index + 1 :, :, :, :]
 	new_conv.weight.data = torch.from_numpy(new_weights).cuda()

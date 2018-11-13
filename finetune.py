@@ -92,13 +92,12 @@ class FilterPrunner:
 	which means it has been registered hook.
 	"""
 	self.activation_to_layer = {}
-	""" cache space for hook function. """
+	""" this two cache space for hook function. """
+	self.grad_index = 0
 	self.gradients = []
-	""" self.grad_index:
+	""" activation_index:
 	the index of the layer which should be activate(registe hook). 
 	""" 
-	self.grad_index = 0
-
 	activation_index = 0
 	""" iteration along all layers in self.model.features. """
 	for layer, (name, module) in enumerate(self.model.features._modules.items()):
@@ -123,6 +122,10 @@ class FilterPrunner:
 	return self.model.classifier(x.view(x.size(0), -1))
 
     def compute_rank(self, grad):
+	""" hooker function.
+	Parameters:
+	    grad: ?;.
+	"""
 	activation_index = len(self.activations) - self.grad_index - 1
 	activation = self.activations[activation_index]
 	values = \

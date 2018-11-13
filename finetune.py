@@ -114,7 +114,7 @@ class FilterPrunner:
 	    is the output of the activation layer.
 	    """
 	    if isinstance(module, torch.nn.modules.conv.Conv2d):
-		""" registe hook on activation layers """
+		""" register hook on activation layers """
 	        x.register_hook(self.compute_rank) 
 		self.activations.append(x) # append outputs values.
 		self.activation_to_layer[activation_index] = layer # layer: int
@@ -148,10 +148,12 @@ class FilterPrunner:
 	         .data
 		
 	# Normalize the rank by the filter dimensions
+	# ?: this is average but not normalize
 	values = \
 	    values / (activation.size(0) * activation.size(2) * activation.size(3))
 
 	if activation_index not in self.filter_ranks:
+	    """ initialize to zeros """
 	    self.filter_ranks[activation_index] = \
 	        torch.FloatTensor(activation.size(1)).zero_().cuda()
 
@@ -159,6 +161,7 @@ class FilterPrunner:
 	self.grad_index += 1
 
     def lowest_ranking_filters(self, num):
+	""" data will finally be a list with tuple """
 	data = []
 	for i in sorted(self.filter_ranks.keys()):
 	    for j in range(self.filter_ranks[i].size(0)):

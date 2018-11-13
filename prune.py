@@ -6,6 +6,9 @@ import sys
 import numpy as np
  
 def replace_layers(model, i, indexes, layers):
+    """
+    if i in indexes, then layer i will i replaced by layers[i]
+    """
 	if i in indexes:
 		return layers[indexes.index(i)]
 	return model[i]

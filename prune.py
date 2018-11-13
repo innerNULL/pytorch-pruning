@@ -10,14 +10,14 @@ def replace_layers(model, i, indexes, layers):
     if i in indexes, then layer i will i replaced by layers[i]
     
     Parameters:
-        model: torch.Module; model.
+        model: torch.Module; model or sub model(sub graph).
 	i: int; the pruning layer's index.
 	index: list with 2 int; target layer index and next layer index.
 	layers: the pruned layer which will replace corresponding layer in model.
     """
-	if i in indexes:
-		return layers[indexes.index(i)]
-	return model[i]
+    if i in indexes:
+        return layers[indexes.index(i)]
+    return model[i]
 
 def prune_vgg16_conv_layer(model, layer_index, filter_index):
         """

@@ -60,8 +60,7 @@ class FilterPrunner:
     deciding how to prune model, output filter index.
     """
     def __init__(self, model):
-	""" initialization.
-	
+	""" initialization.	
 	Parameters:
 	    model: torch.nn.Module; the customized model object, ModifiedVGG16Model.
 	"""
@@ -77,16 +76,20 @@ class FilterPrunner:
 	self.filter_ranks = {}
 
     def forward(self, x):
-	""" initialization. 
-	
+	""" forward. 
 	Parameters:
-	    x: torch data format; the input batch, x.
+	    x: torch dataloader format; the batch input x from 
+	       training data.
 	"""
 	""" self.activations: 
 	means the layer in it has been activated, which means 
-	it has been registered hook.
+	we used it to calculate outputs.
 	"""
 	self.activations = []
+	""" self.activation_to_layer: 
+	means the layer in it has been activated, which means 
+	it has been registered hook.
+	"""
 	self.activation_to_layer = {}
 	self.gradients = []
 	""" self.grad_index:
@@ -97,9 +100,15 @@ class FilterPrunner:
 	activation_index = 0
 	""" iteration along all layers in self.model.features. """
 	for layer, (name, module) in enumerate(self.model.features._modules.items()):
-	    x = module(x) # something wrong?
+	    """
+	    first x will be the the batch input from training data，but with the 
+	    iteration along the internal layers, x will be dynamic assigned to the 
+	    output of second, third, ..., layers.
+	    """
+	    x = module(x) # output, 
 	    if isinstance(module, torch.nn.modules.conv.Conv2d):
-	        x.register_hook(self.compute_rank)
+	        x.register_hook(self.compute_rank) # wrong? x is tensor but not layer!
+		# module.register_hook(self.compute_rank)?
 		self.activations.append(x)
 		self.activation_to_layer[activation_index] = layer
 		activation_index += 1

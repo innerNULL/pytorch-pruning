@@ -14,7 +14,7 @@ def replace_layers(model, i, indexes, layers):
 	return model[i]
 
 def prune_vgg16_conv_layer(model, layer_index, filter_index):
-	"""
+        """
 	pruning vgg16 model.
 	
 	Parameters:
@@ -120,23 +120,24 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	    new_weights[:, :filter_index, :, :] = old_weights[:, :filter_index, :, :]
 	    new_weights[:, filter_index: , :, :] = old_weights[:, (filter_index + 1):, :, :]
             next_new_conv.weight.data = torch.from_numpy(new_weights).cuda()
-
+            """ cache bias value. """
 	    next_new_conv.bias.data = next_conv.bias.data
 
 	if not next_conv is None:
-	 	features = torch.nn.Sequential(
-	            *(replace_layers(model.features, i, [layer_index, layer_index+offset], \
-	            	[new_conv, next_new_conv]) for i, _ in enumerate(model.features)))
-	 	del model.features
-	 	del conv
+	    features = torch.nn.Sequential(
+	        *(replace_layers(model.features, i, [layer_index, layer_index+offset], \
+	          new_conv, next_new_conv]) for i, _ in enumerate(model.features))
+	    )
+	    del model.features
+	    del conv
 
-	 	model.features = features
+	    model.features = features
 
 	else:
-		#Prunning the last conv layer. This affects the first linear layer of the classifier.
-	 	model.features = torch.nn.Sequential(
-	            *(replace_layers(model.features, i, [layer_index], \
-	            	[new_conv]) for i, _ in enumerate(model.features)))
+	    #Prunning the last conv layer. This affects the first linear layer of the classifier.
+	     model.features = torch.nn.Sequential(
+	         *(replace_layers(model.features, i, [layer_index], \
+	           [new_conv]) for i, _ in enumerate(model.features)))
 	 	layer_index = 0
 	 	old_linear_layer = None
 	 	for _, module in model.classifier._modules.items():

@@ -92,7 +92,7 @@ class FilterPrunner:
 	which means it has been registered hook.
 	"""
 	self.activation_to_layer = {}
-	""" this two cache space for hook function. """
+	""" this two will be used in hook function. """
 	self.grad_index = 0
 	self.gradients = []
 	""" activation_index:
@@ -126,11 +126,16 @@ class FilterPrunner:
 	Parameters:
 	    grad: ?;.
 	"""
+	# self.grad_index initialized as 0
+	# activation_index: current handeling layer's index.
 	activation_index = len(self.activations) - self.grad_index - 1
+	# extract current handeling layer's output values
 	activation = self.activations[activation_index]
 	values = \
-	    torch.sum((activation * grad), dim = 0).\
-		      sum(dim=2).sum(dim=3)[0, :, 0, 0].data
+	    torch.sum((activation * grad), dim = 0) \
+	         .sum(dim=2) \
+	         .sum(dim=3)[0, :, 0, 0] \
+	         .data
 		
 	# Normalize the rank by the filter dimensions
 	values = \

@@ -53,7 +53,7 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	channel in later, so the channels' number minus one. 
 	
 	the variable new_conv can be understood as a initialize or cache 
-	of the pruned current/next conv layer.
+	of the pruned current conv layer.
 	"""
 	new_conv = \
 	    torch.nn.Conv2d(
@@ -73,29 +73,35 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	new_weights = new_conv.weight.data.cpu().numpy()
 
 	""" 
-	?: why 5-dim tensor. 
-	The reason is, suppose the conv kernel's dimension is
-	n * c * k_h * k_w, c is the current conv layer's channel number, 
-	n is next conv layer's channel number.
-	The first operation is reshape(expand) the conv kernel on c to 
-	certain variable such as list.(so the code here maybe something wrong)
+	# 1: re-loading the weights value which channel number located before 
+	     the waiting pruning channel.
+	# 2: re-loading the weights value which channel number located after 
+	     the waiting pruning channel.	
+	comments: we can do this more beautiful.
 	"""
 	""" filter index which will handeling the pruning layer. """
-	new_weights[:filter_index, :, :, :] = old_weights[:filter_index, :, :, :]
-	new_weights[filter_index: , :, :, :] = old_weights[(filter_index + 1):, :, :, :]
+	new_weights[:filter_index, :, :, :] = old_weights[:filter_index, :, :, :] # 1
+	new_weights[filter_index: , :, :, :] = old_weights[(filter_index + 1):, :, :, :] # 2
 	new_conv.weight.data = torch.from_numpy(new_weights).cuda()
 
-	""" bias. """
+	""" cache bias. """
 	bias_numpy = conv.bias.data.cpu().numpy()
 
-	""" re-initialize bias. """ 
+	""" re-initialize bias with zeros. """ 
 	bias = np.zeros(shape = (bias_numpy.shape[0] - 1), dtype = np.float32)
-	""" corresponding pruning operation for bias. """
+	
+	""" same operation with how to handel weights above. """
 	bias[:filter_index] = bias_numpy[:filter_index]
 	bias[filter_index:] = bias_numpy[filter_index + 1:]
 	new_conv.bias.data = torch.from_numpy(bias).cuda()
 
+	"""
+	since just pruned(handeled) current conv layer( to new_conv), 
+	next conv layer should also be handeled corresponding to this operation, 
+	in this case, the in_channels but not out_channels should minus 1.
+	"""
 	if not next_conv is None:
+	    """ initialize pruned next conv layer. """
 	    next_new_conv = torch.nn.Conv2d(
 	        in_channels = next_conv.in_channels - 1,
 		out_channels =  next_conv.out_channels, 
@@ -107,14 +113,14 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 		bias = next_conv.bias
 	    )
 
-		old_weights = next_conv.weight.data.cpu().numpy()
-		new_weights = next_new_conv.weight.data.cpu().numpy()
+	    old_weights = next_conv.weight.data.cpu().numpy()
+	    new_weights = next_new_conv.weight.data.cpu().numpy()
 
-		new_weights[:, : filter_index, :, :] = old_weights[:, : filter_index, :, :]
-		new_weights[:, filter_index : , :, :] = old_weights[:, filter_index + 1 :, :, :]
-		next_new_conv.weight.data = torch.from_numpy(new_weights).cuda()
+	    new_weights[:, : filter_index, :, :] = old_weights[:, : filter_index, :, :]
+	    new_weights[:, filter_index : , :, :] = old_weights[:, filter_index + 1 :, :, :]
+            next_new_conv.weight.data = torch.from_numpy(new_weights).cuda()
 
-		next_new_conv.bias.data = next_conv.bias.data
+	    next_new_conv.bias.data = next_conv.bias.data
 
 	if not next_conv is None:
 	 	features = torch.nn.Sequential(

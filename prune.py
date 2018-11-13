@@ -112,12 +112,13 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 		groups = next_conv.groups,
 		bias = next_conv.bias
 	    )
-
+	    """ cache & initialize weights values for next conv layer. """
 	    old_weights = next_conv.weight.data.cpu().numpy()
 	    new_weights = next_new_conv.weight.data.cpu().numpy()
 
-	    new_weights[:, : filter_index, :, :] = old_weights[:, : filter_index, :, :]
-	    new_weights[:, filter_index : , :, :] = old_weights[:, filter_index + 1 :, :, :]
+	    """ similiar with above. """
+	    new_weights[:, :filter_index, :, :] = old_weights[:, :filter_index, :, :]
+	    new_weights[:, filter_index: , :, :] = old_weights[:, (filter_index + 1):, :, :]
             next_new_conv.weight.data = torch.from_numpy(new_weights).cuda()
 
 	    next_new_conv.bias.data = next_conv.bias.data

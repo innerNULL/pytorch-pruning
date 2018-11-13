@@ -141,6 +141,7 @@ class FilterPrunner:
 	current layers output base on loss function, so with grad and kernel
 	weight, we can get out target.
 	"""
+	# values: a torch.tensor
 	values = \
 	    torch.sum((activation * grad), dim = 0) \ # channels wise multiply
 	         .sum(dim=2) \

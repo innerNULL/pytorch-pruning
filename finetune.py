@@ -32,6 +32,7 @@ class ModifiedVGG16Model(torch.nn.Module):
 	for param in self.features.parameters():
 	    param.requires_grad = False
 
+	""" initialize the classifier part of vgg. """
 	self.classifier = nn.Sequential(
             nn.Dropout(),
 	    nn.Linear(25088, 4096),
@@ -43,7 +44,9 @@ class ModifiedVGG16Model(torch.nn.Module):
 	)
 
     def forward(self, x):
+	""" customize the forward process. """
         x = self.features(x)
+	""" reshape the output of last conv layer to connet with full connect layer. """
 	x = x.view(x.size(0), -1)
 	x = self.classifier(x)
 	return x

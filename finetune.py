@@ -16,6 +16,10 @@ from heapq import nsmallest
 import time
 
 class ModifiedVGG16Model(torch.nn.Module):
+    """ 
+    customize the model which will be useful in this optimization problem 
+    of pruning problem.
+    """  
     def __init__(self):
 	super(ModifiedVGG16Model, self).__init__()
 
@@ -52,6 +56,9 @@ class ModifiedVGG16Model(torch.nn.Module):
 	return x
 
 class FilterPrunner:
+    """
+    deciding how to prune model, output filter index.
+    """
     def __init__(self, model):
 	self.model = model
 	self.reset()

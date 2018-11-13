@@ -25,14 +25,22 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	""" extracting the current conv layer """
 	_, conv = model.features._modules.items()[layer_index]
 	next_conv = None
+	""" offset = 1:
+	means the next layer is the layer just next to current layer, 
+	but ofcourse, the offset value is dynamic.
+	"""
 	offset = 1
 
-	""" 
-	locate next conv layer with iteration. 
-	searching the most close conv layer.
 	"""
 	while layer_index + offset <  len(model.features._modules.items()):
-		""" res means current loacated layer. """
+	the reason is make sure the pruning conv layer is not the last conv
+	layer which is connecting with full connect layer.
+	
+	in following code block, it will dynamically change the offset value
+	to locate the nearest next conv layer.
+	"""
+	while layer_index + offset <  len(model.features._modules.items()):
+		""" res next layer base on current offset. """
 		res =  model.features._modules.items()[layer_index + offset]
 		if isinstance(res[1], torch.nn.modules.conv.Conv2d):
 			next_name, next_conv = res
@@ -43,6 +51,9 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	?: why minus one. 
 	because this operation will cut one
 	channel in later, so the channels' number minus one. 
+	
+	the variable new_conv can be understood as a initialize or cache 
+	of the pruned current/next conv layer.
 	"""
 	new_conv = \
 	    torch.nn.Conv2d(
@@ -69,8 +80,9 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	The first operation is reshape(expand) the conv kernel on c to 
 	certain variable such as list.(so the code here maybe something wrong)
 	"""
-	new_weights[: filter_index, :, :, :] = old_weights[: filter_index, :, :, :]
-	new_weights[filter_index : , :, :, :] = old_weights[filter_index + 1 :, :, :, :]
+	""" filter index which will handeling the pruning layer. """
+	new_weights[:filter_index, :, :, :] = old_weights[:filter_index, :, :, :]
+	new_weights[filter_index: , :, :, :] = old_weights[(filter_index + 1):, :, :, :]
 	new_conv.weight.data = torch.from_numpy(new_weights).cuda()
 
 	""" bias. """

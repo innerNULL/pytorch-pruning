@@ -114,6 +114,7 @@ class FilterPrunner:
 	    is the output of the activation layer.
 	    """
 	    if isinstance(module, torch.nn.modules.conv.Conv2d):
+		""" registe hook on activation layers """
 	        x.register_hook(self.compute_rank) 
 		self.activations.append(x) # append outputs values.
 		self.activation_to_layer[activation_index] = layer # layer: int
@@ -125,10 +126,12 @@ class FilterPrunner:
     def compute_rank(self, grad):
 	""" hooker function.
 	Parameters:
-	    grad: ?;.
+	    grad: hooker function's standard.
 	"""
 	# self.grad_index initialized as 0
-	# activation_index: current handeling layer's index.
+	""" activation_index: current handeling layer's index.
+	?: minus 1 because not consider the last conv layer's activation.
+	"""
 	activation_index = len(self.activations) - self.grad_index - 1
 	# extract current handeling layer's output values
 	activation = self.activations[activation_index]
@@ -139,7 +142,7 @@ class FilterPrunner:
 	weight, we can get out target.
 	"""
 	values = \
-	    torch.sum((activation * grad), dim = 0) \
+	    torch.sum((activation * grad), dim = 0) \ # channels wise multiply
 	         .sum(dim=2) \
 	         .sum(dim=3)[0, :, 0, 0] \
 	         .data

@@ -8,6 +8,12 @@ import numpy as np
 def replace_layers(model, i, indexes, layers):
     """
     if i in indexes, then layer i will i replaced by layers[i]
+    
+    Parameters:
+        model: torch.Module; model.
+	i: int; the pruning layer's index.
+	index: int; ?.
+	layers: the pruned layer which will replace corresponding layer in model.
     """
 	if i in indexes:
 		return layers[indexes.index(i)]

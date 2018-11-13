@@ -82,14 +82,13 @@ class FilterPrunner:
 	       training data. or feature maps?
 	"""
 	""" self.activations: 
-	means the layer in it has been activated, which means 
-	we used it to calculate outputs. all layer index in it 
-	belongs to conv layers.
+	the output of activation layers, and which are also the input 
+	of certain conv layers.
 	"""
 	self.activations = []
 	""" self.activation_to_layer: 
-	means the layer's corresponding index in it has been activated,
-	which means it has been registered hook.
+	this saves layers' indexes. these layers are conv layers which
+	use activation layers' output as input, that's why it calls "activation_to_layer".
 	"""
 	self.activation_to_layer = {}
 	""" this two will be used in hook function. """
@@ -110,12 +109,14 @@ class FilterPrunner:
 	    """
 	    x = module(x) # output of current layer, input of next layer.
 	    """
-	    helps to filte the useful data/info of conv layers.
+	    helps to filte the useful data/info of conv layers， 
+	    and cache the input of current conv layer, x, which 
+	    is the output of the activation layer.
 	    """
 	    if isinstance(module, torch.nn.modules.conv.Conv2d):
 	        x.register_hook(self.compute_rank) 
 		self.activations.append(x) # append outputs values.
-		self.activation_to_layer[activation_index] = layer
+		self.activation_to_layer[activation_index] = layer # layer: int
 		activation_index += 1
 		
 	""" return reshaped x after all iteration as the input of full connect layer. """

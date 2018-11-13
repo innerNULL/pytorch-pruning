@@ -60,10 +60,16 @@ class FilterPrunner:
     deciding how to prune model, output filter index.
     """
     def __init__(self, model):
+	""" initialization.
+	
+	Parameters:
+	    model: torch.nn.Module; the customized model object, ModifiedVGG16Model.
+	"""
 	self.model = model
 	self.reset()
 	
     def reset(self):
+	""" customized initialization method. """
 	# self.activations = []
 	# self.gradients = []
 	# self.grad_index = 0

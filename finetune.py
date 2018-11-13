@@ -87,8 +87,8 @@ class FilterPrunner:
 	"""
 	self.activations = []
 	""" self.activation_to_layer: 
-	means the layer in it has been activated, which means 
-	it has been registered hook.
+	means the layer's corresponding index in it has been activated,
+	which means it has been registered hook.
 	"""
 	self.activation_to_layer = {}
 	self.gradients = []
@@ -107,7 +107,10 @@ class FilterPrunner:
 	    output of second, third, ..., layers, call it ith layer, and which will 
 	    be used as the input of (i + 1)th layer at the next iteration.
 	    """
-	    x = module(x) # output, 
+	    x = module(x) # output of current layer, input of next layer.
+	    """
+	    helps to filte the useful data/info of conv layers.
+	    """
 	    if isinstance(module, torch.nn.modules.conv.Conv2d):
 	        x.register_hook(self.compute_rank) # wrong? x is tensor but not layer!
 		# ?: module.register_hook(self.compute_rank)?

@@ -12,7 +12,7 @@ def replace_layers(model, i, indexes, layers):
     Parameters:
         model: torch.Module; model.
 	i: int; the pruning layer's index.
-	index: int; ?.
+	index: list with 2 int; target layer index and next layer index.
 	layers: the pruned layer which will replace corresponding layer in model.
     """
 	if i in indexes:

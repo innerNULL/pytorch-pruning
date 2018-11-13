@@ -29,7 +29,7 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	Parameters:
 	    model: torch.nn.Net; model.
 	    layer_index: int; layer index.
-	    filter_index: int; channel's index.
+	    filter_index: int; the index of the channel which will be pruned.
 	"""
 	""" extracting the current conv layer """
 	_, conv = model.features._modules.items()[layer_index]

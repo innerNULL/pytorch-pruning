@@ -113,11 +113,11 @@ class FilterPrunner:
 	    helps to filte the useful data/info of conv layers.
 	    """
 	    if isinstance(module, torch.nn.modules.conv.Conv2d):
-	        x.register_hook(self.compute_rank) # wrong? x is tensor but not layer!
-		# ?: module.register_hook(self.compute_rank)?
+	        x.register_hook(self.compute_rank) 
 		self.activations.append(x) # append outputs values.
 		self.activation_to_layer[activation_index] = layer
 		activation_index += 1
+		
 	""" return reshaped x after all iteration as the input of full connect layer. """
 	return self.model.classifier(x.view(x.size(0), -1))
 
@@ -131,6 +131,12 @@ class FilterPrunner:
 	activation_index = len(self.activations) - self.grad_index - 1
 	# extract current handeling layer's output values
 	activation = self.activations[activation_index]
+	""" activation * grad:
+	the target is calculating the derivatives of "X" base loss function 
+	with kernel weight as constant, the grad the the derivatives of 
+	current layers output base on loss function, so with grad and kernel
+	weight, we can get out target.
+	"""
 	values = \
 	    torch.sum((activation * grad), dim = 0) \
 	         .sum(dim=2) \

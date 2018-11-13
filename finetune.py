@@ -20,8 +20,15 @@ class ModifiedVGG16Model(torch.nn.Module):
 	super(ModifiedVGG16Model, self).__init__()
 
 	model = models.vgg16(pretrained=True)
+	""" extrace features(which includes all conv layer in vgg). """
 	self.features = model.features
 
+	"""
+	notice this, as the paper mentioned, we should calculate the derivative 
+	of X or X_batch base on loss function, and fix lernel weights and bias 
+	as constant, so the "requires_grad" attribute of all parameters of conv 
+	layers should be False.
+	"""
 	for param in self.features.parameters():
 	    param.requires_grad = False
 

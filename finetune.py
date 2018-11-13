@@ -83,7 +83,8 @@ class FilterPrunner:
 	"""
 	""" self.activations: 
 	means the layer in it has been activated, which means 
-	we used it to calculate outputs.
+	we used it to calculate outputs. all layer index in it 
+	belongs to conv layers.
 	"""
 	self.activations = []
 	""" self.activation_to_layer: 
@@ -91,6 +92,7 @@ class FilterPrunner:
 	which means it has been registered hook.
 	"""
 	self.activation_to_layer = {}
+	""" cache space for hook function. """
 	self.gradients = []
 	""" self.grad_index:
 	the index of the layer which should be activate(registe hook). 
@@ -117,7 +119,7 @@ class FilterPrunner:
 		self.activations.append(x) # append outputs values.
 		self.activation_to_layer[activation_index] = layer
 		activation_index += 1
-
+	""" return reshaped x after all iteration as the input of full connect layer. """
 	return self.model.classifier(x.view(x.size(0), -1))
 
     def compute_rank(self, grad):

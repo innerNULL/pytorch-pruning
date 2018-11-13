@@ -48,7 +48,7 @@ def prune_vgg16_conv_layer(model, layer_index, filter_index):
 	in following code block, it will dynamically change the offset value
 	to locate the nearest next conv layer.
 	"""
-	while layer_index + offset <  len(model.features._modules.items()):
+	while layer_index + offset < len(model.features._modules.items()):
 		""" res next layer base on current offset. """
 		res =  model.features._modules.items()[layer_index + offset]
 		if isinstance(res[1], torch.nn.modules.conv.Conv2d):

@@ -82,14 +82,17 @@ class FilterPrunner:
 	Parameters:
 	    x: torch data format; the input batch, x.
 	"""
-	"""
-	self.activations means the layer in it has been activated, which means 
+	""" self.activations: 
+	means the layer in it has been activated, which means 
 	it has been registered hook.
 	"""
 	self.activations = []
-	self.gradients = []
-	self.grad_index = 0
 	self.activation_to_layer = {}
+	self.gradients = []
+	""" self.grad_index:
+	the index of the layer which should be activate(registe hook). 
+	""" 
+	self.grad_index = 0
 
 	activation_index = 0
 	""" iteration along all layers in self.model.features. """

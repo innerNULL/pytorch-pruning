@@ -78,8 +78,8 @@ class FilterPrunner:
     def forward(self, x):
 	""" forward. 
 	Parameters:
-	    x: torch dataloader format; the batch input x from 
-	       training data.
+	    ?:x: torch dataloader format; the batch input x from 
+	       training data. or feature maps?
 	"""
 	""" self.activations: 
 	means the layer in it has been activated, which means 

@@ -38,7 +38,7 @@ class ModifiedVGG16Model(torch.nn.Module):
 
 	""" initialize the classifier part of vgg. """
 	self.classifier = nn.Sequential(
-            nn.Dropout(),
+	    nn.Dropout(),
 	    nn.Linear(25088, 4096),
 	    nn.ReLU(inplace=True),
 	    nn.Dropout(),
@@ -77,14 +77,20 @@ class FilterPrunner:
 	self.filter_ranks = {}
 
     def forward(self, x):
+	""" initialization. 
+	
+	Parameters:
+	    x: torch data format; the input batch, x.
+	"""
 	self.activations = []
 	self.gradients = []
 	self.grad_index = 0
 	self.activation_to_layer = {}
 
 	activation_index = 0
+	""" iteration along all layers in self.model.features. """
 	for layer, (name, module) in enumerate(self.model.features._modules.items()):
-	    x = module(x)
+	    x = module(x) # something wrong?
 	    if isinstance(module, torch.nn.modules.conv.Conv2d):
 	        x.register_hook(self.compute_rank)
 		self.activations.append(x)

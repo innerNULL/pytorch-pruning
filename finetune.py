@@ -87,7 +87,8 @@ class FilterPrunner:
 	self.activations = []
 	""" self.activation_to_layer: 
 	this saves layers' indexes. these layers are conv layers which
-	use activation layers' output as input, that's why it calls "activation_to_layer".
+	use activation layers' output as input, that's why it calls 
+	"activation_to_layer".
 	"""
 	self.activation_to_layer = {}
 	""" this two will be used in hook function. """

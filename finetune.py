@@ -143,7 +143,7 @@ class FilterPrunner:
 	"""
 	# values: a torch.tensor
 	values = \
-	    torch.sum((activation * grad), dim = 0) \ # channels wise multiply
+	    torch.sum((activation * grad), dim = 0) \ 
 	         .sum(dim=2) \
 	         .sum(dim=3)[0, :, 0, 0] \
 	         .data
